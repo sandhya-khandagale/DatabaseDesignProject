@@ -1,0 +1,176 @@
+--Create Tables:
+
+CREATE TABLE customer(
+    customer_id INTEGER, 
+    customer_name VARCHAR(50),
+    customer_address VARCHAR(100), 
+    customer_phone NUMBER, 
+    customer_email VARCHAR(30), 
+    PRIMARY KEY(customer_id)
+); 
+
+CREATE TABLE sale(
+    sale_id INTEGER, 
+    sale_date DATE, 
+    sale_time NUMBER, 
+    sale_total FLOAT,
+    PRIMARY KEY(sale_id) 
+); 
+
+CREATE TABLE inventory(
+    inventory_id INTEGER, 
+    inventory_stock_amnt FLOAT, 
+    item_style VARCHAR(20), 
+    item_color VARCHAR(20), 
+    item_price FLOAT, 
+    PRIMARY KEY(inventory_id)
+); 
+
+CREATE TABLE orderHistory(
+    sale_id INTEGER, 
+    customer_id INTEGER,
+    inventory_id INTEGER, 
+    order_quantity NUMBER, 
+    PRIMARY KEY (sale_id, customer_id, inventory_id),
+    FOREIGN KEY(sale_id) references sale(sale_id), 
+    FOREIGN KEY(customer_id) references customer(customer_id),
+    FOREIGN KEY(inventory_id) references inventory(inventory_id)
+); 
+
+CREATE TABLE dress(
+    inventory_id INTEGER,
+    dress_length NUMBER, 
+    PRIMARY KEY(inventory_id)
+); 
+
+CREATE TABLE suit(
+    inventory_id INTEGER,
+    suit_size NUMBER, 
+    PRIMARY KEY(inventory_id)
+);
+
+
+-- Input Data:
+
+INSERT INTO customer VALUES(1, 'Sarah Wilson', '300 Local Lane, Rocktown, MD 20900', '3013003432', 'sarahw@gmail.com');
+INSERT INTO customer VALUES(2, 'Johnny Rose', '700 Faraway Terrace, Poolsville, MD 30700', '2407008747', 'johnnyr@yahoo.com');
+INSERT INTO customer VALUES(3, 'Mary Trotman', '900 Crabtree Drive, Stonefarm, VA 80922', '7039005162', 'maryt@gmail.com');
+INSERT INTO customer VALUES(4, 'Alex Press', '500 Elkridge Road, Riverhill, VA 50233', '2025004321', 'alexp@yahoo.com');
+
+INSERT INTO sale VALUES (1, '02-APR-2023', 1030, 12.94);
+INSERT INTO sale VALUES(2, '04-APR-2023', 1645, 31.99);
+INSERT INTO sale VALUES(3, '06-APR-2023', 1225, 42.51);
+INSERT INTO sale VALUES(4, '06-APR-2023', 1415, 55.63);
+INSERT INTO sale VALUES(5, '08-APR-2023', 1159, 21.27);
+INSERT INTO sale VALUES(6, '10-APR-2023', 1330, 74.22);
+
+INSERT INTO inventory VALUES(1, 30, 'Dress', 'Yellow', 11.99);
+INSERT INTO inventory VALUES(2, 16, 'Suit', 'Black', 50.99);
+INSERT INTO inventory VALUES(3, 11, 'Sweater', 'Red', 28.99);
+INSERT INTO inventory VALUES(4, 5, 'Jacket', 'Gray', 20.99);
+INSERT INTO inventory VALUES(5, 23, 'T-shirt', 'Blue', 6.99);
+INSERT INTO inventory VALUES(6, 9, 'Pants', 'Beige', 15.99);
+
+INSERT INTO orderHistory VALUES(1, 1, 1, 1);
+INSERT INTO orderHistory VALUES(2, 1, 3, 2);
+INSERT INTO orderHistory VALUES(3, 2, 3, 1);
+INSERT INTO orderHistory VALUES(4, 2, 2, 2);
+INSERT INTO orderHistory VALUES(5, 3, 6, 1);
+INSERT INTO orderHistory VALUES(6, 4, 4, 2);
+
+INSERT INTO dress VALUES(1, 22);
+
+INSERT INTO suit VALUES(2, 32);
+
+
+--Queries:
+
+--Select Statements:
+
+--Single Table Select -
+--Return the total of the sale made on April 6th, 2023 after 2:00pm:
+
+SELECT sale_total
+FROM sale
+WHERE sale_date = '06-APR-2023' AND sale_time > 1400;
+
+--Join -
+Return the sale ID of purchase made by a customer named ‘Mary’:
+
+SELECT sale_id
+FROM orderHistory o, customer c
+WHERE o.sale_id = c.customer_id AND c.customer_name LIKE '%Mary%';
+
+--Group-By / Aggregation -
+--Return the list of all customers and their total amount of spending:
+
+SELECT customer_name, sum(sale_total) as total_price
+FROM orderHistory o, customer c, sale s
+WHERE o.customer_id = c.customer_id AND o.sale_id = s.sale_id
+GROUP BY customer_name;
+
+--Group-By / Aggregation -
+--Return the number of orders placed by each customer:
+
+SELECT customer_name, count(*)
+FROM customer c, orderHistory o
+WHERE c.customer_id = o.customer_id
+GROUP BY customer_name;
+
+--Multi-Join -
+==Return customer name, name of the products they placed, and the total of sale:
+
+SELECT customer_name, item_style, sale_total
+FROM customer c, orderHistory o, inventory i, sale s
+WHERE c.customer_id = o.customer_id
+AND i.inventory_id = o.inventory_id
+AND s.sale_id = o.sale_id;
+
+--Join -
+--List all customers and their emails that have purchased more than 1 item:
+
+SELECT c.customer_name, c.customer_email
+FROM customer c
+JOIN orderHistory o ON c.customer_id = o.customer_id
+WHERE o.order_quantity > 1;
+
+--Join -
+--List the style, color, and price of items that have more than 15 in stock:
+
+SELECT i.item_style, i.item_color, i.item_price
+FROM inventory i
+JOIN orderHistory o ON i.inventory_id = o.inventory_id
+WHERE i.inventory_stock_amnt > 15;
+
+--Join - 
+--Return the contact details of customers who purchased suits:
+
+SELECT c.customer_name, c.customer_address, c.customer_email, c.customer_phone
+FROM customer c
+JOIN orderHistory o ON c.customer_id = o.customer_id
+WHERE o.inventory_id = 2;
+
+
+--Update Statements:
+
+--Update -
+--Update jacket price to $24.99:
+
+UPDATE inventory
+SET item_price = item_price + 4.00
+WHERE item_style = 'Jacket';
+
+SELECT item_style, item_price
+FROM inventory
+WHERE inventory_id = 4;
+
+
+--Update -
+--Update stock amount of any items less than 15:
+
+UPDATE inventory
+SET inventory_stock_amnt = inventory_stock_amnt + 75
+WHERE inventory_stock_amnt  < 15;
+
+SELECT item_style, inventory_stock_amnt
+FROM inventory;
