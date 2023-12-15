@@ -1,4 +1,4 @@
-Create Tables:
+--Create Tables:
 
 CREATE TABLE customer(
     customer_id INTEGER, 
@@ -49,9 +49,8 @@ CREATE TABLE suit(
     PRIMARY KEY(inventory_id)
 );
 
---
 
-Input Data:
+-- Input Data:
 
 INSERT INTO customer VALUES(1, 'Sarah Wilson', '300 Local Lane, Rocktown, MD 20900', '3013003432', 'sarahw@gmail.com');
 INSERT INTO customer VALUES(2, 'Johnny Rose', '700 Faraway Terrace, Poolsville, MD 30700', '2407008747', 'johnnyr@yahoo.com');
@@ -83,44 +82,43 @@ INSERT INTO dress VALUES(1, 22);
 
 INSERT INTO suit VALUES(2, 32);
 
---
 
-Queries:
+--Queries:
 
-Select Statements:
+--Select Statements:
 
-Single Table Select -
-Return the total of the sale made on April 6th, 2023 after 2:00pm:
+--Single Table Select -
+--Return the total of the sale made on April 6th, 2023 after 2:00pm:
 
 SELECT sale_total
 FROM sale
 WHERE sale_date = '06-APR-2023' AND sale_time > 1400;
 
-Join -
+--Join -
 Return the sale ID of purchase made by a customer named ‘Mary’:
 
 SELECT sale_id
 FROM orderHistory o, customer c
 WHERE o.sale_id = c.customer_id AND c.customer_name LIKE '%Mary%';
 
-Group-By / Aggregation -
-Return the list of all customers and their total amount of spending:
+--Group-By / Aggregation -
+--Return the list of all customers and their total amount of spending:
 
 SELECT customer_name, sum(sale_total) as total_price
 FROM orderHistory o, customer c, sale s
 WHERE o.customer_id = c.customer_id AND o.sale_id = s.sale_id
 GROUP BY customer_name;
 
-Group-By / Aggregation -
-Return the number of orders placed by each customer:
+--Group-By / Aggregation -
+--Return the number of orders placed by each customer:
 
 SELECT customer_name, count(*)
 FROM customer c, orderHistory o
 WHERE c.customer_id = o.customer_id
 GROUP BY customer_name;
 
-Multi-Join -
-Return customer name, name of the products they placed, and the total of sale:
+--Multi-Join -
+==Return customer name, name of the products they placed, and the total of sale:
 
 SELECT customer_name, item_style, sale_total
 FROM customer c, orderHistory o, inventory i, sale s
@@ -128,24 +126,24 @@ WHERE c.customer_id = o.customer_id
 AND i.inventory_id = o.inventory_id
 AND s.sale_id = o.sale_id;
 
-Join -
-List all customers and their emails that have purchased more than 1 item:
+--Join -
+--List all customers and their emails that have purchased more than 1 item:
 
 SELECT c.customer_name, c.customer_email
 FROM customer c
 JOIN orderHistory o ON c.customer_id = o.customer_id
 WHERE o.order_quantity > 1;
 
-Join -
-List the style, color, and price of items that have more than 15 in stock:
+--Join -
+--List the style, color, and price of items that have more than 15 in stock:
 
 SELECT i.item_style, i.item_color, i.item_price
 FROM inventory i
 JOIN orderHistory o ON i.inventory_id = o.inventory_id
 WHERE i.inventory_stock_amnt > 15;
 
-Join - 
-Return the contact details of customers who purchased suits:
+--Join - 
+--Return the contact details of customers who purchased suits:
 
 SELECT c.customer_name, c.customer_address, c.customer_email, c.customer_phone
 FROM customer c
@@ -153,10 +151,10 @@ JOIN orderHistory o ON c.customer_id = o.customer_id
 WHERE o.inventory_id = 2;
 
 
-Update Statements:
+--Update Statements:
 
-Update -
-Update jacket price to $24.99:
+--Update -
+--Update jacket price to $24.99:
 
 UPDATE inventory
 SET item_price = item_price + 4.00
@@ -167,8 +165,8 @@ FROM inventory
 WHERE inventory_id = 4;
 
 
-Update -
-Update stock amount of any items less than 15:
+--Update -
+--Update stock amount of any items less than 15:
 
 UPDATE inventory
 SET inventory_stock_amnt = inventory_stock_amnt + 75
